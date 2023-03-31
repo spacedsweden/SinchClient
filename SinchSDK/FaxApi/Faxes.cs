@@ -1,5 +1,6 @@
 ﻿using Sinch.FaxApi.Models;
 using Sinch.Models;
+using Sinch.Utils;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -59,8 +60,11 @@ namespace Sinch.FaxApi
                     throw new ArgumentException("fileName is required when file is provided");
                 content.Add(new StreamContent(file), "file", fileName);
             }
-            content.Add(new StringContent(JsonSerializer.Serialize(fax, SinchClient.JsonSerializerOptions)), "fax");
-            var result = await httpClient.PatchAsync(url, content);
+            foreach (var data in fax.ToDictionary())
+            {
+                content.Add(new StringContent(data.Value), data.Key);
+            }
+            var result = await httpClient.PostAsync(url, content);
             if (result.IsSuccessStatusCode)
             {
                 var faxResponse = await result.Content.ReadFromJsonAsync<Fax>(SinchClient.JsonSerializerOptions);
