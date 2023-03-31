@@ -35,10 +35,11 @@ namespace Sinch
             this.key = key;
             this.secret = secret;
             this.httpClient = new HttpClient();
-            var authenticationString = $"{0}:{1}";
-            authenticationString = string.Format(authenticationString, key, secret);
+            var authenticationString = $"{key}:{secret}";
+            //authenticationString = string.Format(authenticationString, key, secret);
             //todo add oath to http client
-            this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(authenticationString)));
+            var base64string = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(authenticationString));
+            this.httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", base64string);
 
         }
         public SinchClient(string projectId, string key, string secret, SinchRegion defaultRegion) : this(projectId, key, secret)

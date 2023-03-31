@@ -17,7 +17,7 @@ namespace Sinch.FaxApi
             this.projectId = projectId;
             baseUrl = string.Format(baseUrl, projectId);
             this.faxes = new Faxes(httpClient, projectId);
-
+            httpClient.BaseAddress = new Uri(string.Format(baseUrl, projectId));
         }
 
         

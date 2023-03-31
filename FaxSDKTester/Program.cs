@@ -1,4 +1,5 @@
-﻿using Sinch;
+﻿using Microsoft.Extensions.Configuration;
+using Sinch;
 using Sinch.FaxApi;
 using Sinch.FaxApi.Models;
 
@@ -8,27 +9,28 @@ namespace FaxSDKTester
     {
         static async Task Main(string[] args)
         {
+            var environment = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
+                .AddUserSecrets<Program>();
+            var configurationRoot = builder.Build();
+
+            
+            Console.WriteLine(configurationRoot["faxSettings:key"]);
             /// using it in non asp.net project, like a worker or similar where you dont have the asp.net DI
             /// Unlike twilio we wont force a static implementation, but rather just give you a way to create a client and you choose how 
             /// you want to handle the life of it. 
             /// We should also either have a aspnetcore package where we support services.AddSinch(options=>{
             /// projectId="sadfasdfsadfsafaf", key="key", secret="secret"
             /// })
-            var sinch = new SinchClient("sadfasdfsadfsafaf", "key", "secret");
+            var sinch = new SinchClient(configurationRoot["faxSettings:projectId"], configurationRoot["faxSettings:key"], configurationRoot["faxSettings:secret"]);
             //create and send a fax, we handle file read etc
             // I am a bit conflicted on the API in the name here, but if we dont add api, it becomes a wholelot of Fax, faxes,fax
             //Also it is not meant to really reflect api structure here, its meant to be easy to navigate with no docs. 
-            var fax = await sinch.FaxApi.Faxes.Send("+15612600684", "+15612600684", "c:\tempfiles\faxcontent.pdf");
+            var fax = await sinch.FaxApi.Faxes.Send("+12344094635", "+12344094635", "sadgoat.pdf");
             //got a file stream?
-            Stream stream = new MemoryStream(); //pretend we have a file in this, 
-            //var fax2 = await sinch.FaxApi.Faxes.Send("+15612600684", "+15612600684", stream);
-
-            //more options
-            var fax3 = await sinch.FaxApi.Faxes.Send(new FaxOptions { 
-                To = "+15612600684", 
-                From = "+15612600684",
-                ImageConversionMethod = ImageConversionMethod.MONOCHROME
-            }, stream);
+            
 
             //otehr methods
             await sinch.FaxApi.Faxes.Delete("faxid");

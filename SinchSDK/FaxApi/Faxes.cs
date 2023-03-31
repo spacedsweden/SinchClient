@@ -53,7 +53,7 @@ namespace Sinch.FaxApi
 
         public async Task<Fax> Send(FaxOptions fax, Stream? file, string? fileName)
         {
-            var url = $"/faxes";
+            var url = $"faxes";
             var content = new MultipartFormDataContent();
             if (file != null ) {
                 if (string.IsNullOrEmpty(fileName) )
