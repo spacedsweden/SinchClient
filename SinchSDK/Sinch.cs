@@ -23,13 +23,15 @@ namespace Sinch
                         DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
                         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
                     };
-    /// <summary>
-    /// Create a instance of the sinch client
-    /// </summary>
-    /// <param name="projectId">default proejct id to work with</param>
-    /// <param name="key">Api key from dashboard</param>
-    /// <param name="secret">ap secret from dashboard</param>
-    public SinchClient(string projectId, string key, string secret)
+        private Smses _smses;
+
+        /// <summary>
+        /// Create a instance of the sinch client
+        /// </summary>
+        /// <param name="projectId">default proejct id to work with</param>
+        /// <param name="key">Api key from dashboard</param>
+        /// <param name="secret">ap secret from dashboard</param>
+        public SinchClient(string projectId, string key, string secret)
         {
             this.projectId = projectId;
             this.key = key;
@@ -63,6 +65,18 @@ namespace Sinch
                     _faxes = new Faxes(httpClient, projectId);
                 }
                 return _faxes;
+            }
+        }
+
+        public Smses Smses
+        {
+            get
+            {
+                if (_smses == null)
+                {
+                    _smses = new Smses();
+                }
+                return _smses;
             }
         }
 
