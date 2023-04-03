@@ -2,6 +2,7 @@
 using Sinch;
 using Sinch.FaxApi;
 using Sinch.FaxApi.Models;
+using System.Text.Json;
 
 namespace FaxSDKTester
 {
@@ -29,6 +30,8 @@ namespace FaxSDKTester
             // I am a bit conflicted on the API in the name here, but if we dont add api, it becomes a wholelot of Fax, faxes,fax
             //Also it is not meant to really reflect api structure here, its meant to be easy to navigate with no docs. 
             var fax = await sinch.FaxApi.Faxes.Send("+12344094635", "+12344094635", "sadgoat.pdf");
+            Console.WriteLine(JsonSerializer.Serialize(fax, jsonOptions));
+            Console.ReadLine();
             //got a file stream?
             
 
@@ -51,5 +54,15 @@ namespace FaxSDKTester
             /// To me that feels more error prone, it does look nicer with shorter code samples but a bit to easy make errors
 
         }
+        private static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        };
     }
+
+
 }
