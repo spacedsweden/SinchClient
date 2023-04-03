@@ -54,13 +54,13 @@ namespace Sinch
 
         }
 
-        public FaxesApi FaxApi
+        public Faxes Faxes
         {
             get
             {
                 if (_faxes == null)
                 {
-                    _faxes = new FaxesApi(httpClient, projectId);
+                    _faxes = new Faxes(httpClient, projectId);
                 }
                 return _faxes;
             }

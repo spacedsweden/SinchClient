@@ -29,14 +29,12 @@ namespace FaxSDKTester
             //create and send a fax, we handle file read etc
             // I am a bit conflicted on the API in the name here, but if we dont add api, it becomes a wholelot of Fax, faxes,fax
             //Also it is not meant to really reflect api structure here, its meant to be easy to navigate with no docs. 
-            var fax = await sinch.FaxApi.Faxes.Send("+12344094635", "+12344094635", "sadgoat.pdf");
+            var fax = await sinch.Faxes.Send("+12344094635", "+12344094635", "sadgoat.pdf");
             Console.WriteLine(JsonSerializer.Serialize(fax, jsonOptions));
             Console.ReadLine();
-            //got a file stream?
             
-
             //otehr methods
-            await sinch.FaxApi.Faxes.Delete("faxid");
+            await sinch.Faxes.Delete("faxid");
 
             ////how would such pseudo feel with i.e sms
             //var sms = sinch.SmsApi.Messages.Send("+15612600684", "+15612600684", "Message from sinch");

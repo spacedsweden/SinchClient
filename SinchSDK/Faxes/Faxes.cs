@@ -1,20 +1,25 @@
-﻿using Sinch.FaxApi.Models;
+﻿using Sinch.FaxApi;
+using Sinch.FaxApi.Models;
 using Sinch.Models;
 using Sinch.Utils;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace Sinch.FaxApi
+namespace Sinch
 {
     public class Faxes
     {
         private readonly HttpClient httpClient;
         private readonly string projectId;
+        private string baseUrl = @"https://fax.us1tst.fax-api.staging.sinch.com/v3/projects/{0}/";
         public Faxes(HttpClient httpClient, string projectId)
         {
             this.projectId = projectId;
             this.httpClient = httpClient;
+            this.httpClient = httpClient;
+            this.projectId = projectId;
+            baseUrl = string.Format(baseUrl, projectId);
+            httpClient.BaseAddress = new Uri(string.Format(baseUrl, projectId));
         }
 
         public async Task<ListFaxResponse> List(ListOptions listOptions)
@@ -106,6 +111,13 @@ namespace Sinch.FaxApi
             }
 
         }
+        /// <summary>
+        /// Send a fax with and adds the file to the fax, make sure the file exists where the sdk can access it.
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="from"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public async Task<Fax> Send(string to, string from, string filePath)
         {
             var faxOptions = new FaxOptions
@@ -118,6 +130,14 @@ namespace Sinch.FaxApi
             return await Send(faxOptions, stream, Path.GetFileName(stream.Name));
         }
 
+        /// <summary>
+        /// Send a fax with a stream as fax
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="from"></param>
+        /// <param name="file"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public async Task<Fax> Send(string to, string from, Stream file, string fileName)
         {
             var faxOptions = new FaxOptions
@@ -129,6 +149,15 @@ namespace Sinch.FaxApi
             return await Send(faxOptions, file, fileName);
         }
 
+        /// <summary>
+        /// Teh most fleixble method to send a fax, you can add any fax options and a file to the fax
+        /// </summary>
+        /// <param name="fax"></param>
+        /// <param name="file"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="Exception"></exception>
         public async Task<Fax> Send(FaxOptions fax, Stream? file, string? fileName)
         {
             var url = $"faxes";
@@ -156,5 +185,74 @@ namespace Sinch.FaxApi
             }
 
         }
+
+
+        #region Services
+
+        public async Task<Service> GetService(string Id)
+        {
+            var url = $"services/{Id}";
+            return await httpClient.GetFromJsonAsync<Service>(url, SinchClient.JsonSerializerOptions);
+        }
+        public async Task<ListServiceResponse> GetServices()
+        {
+            var url = $"services";
+            var result = await httpClient.GetFromJsonAsync<ListServiceResponse>(url, SinchClient.JsonSerializerOptions);
+            return result;
+        }
+        public async Task<Service> CreateService(Service service)
+        {
+            var url = $"services";
+            var result = await httpClient.PostAsJsonAsync(url, service);
+            if (result.IsSuccessStatusCode)
+            {
+                var serviceResponse = await result.Content.ReadFromJsonAsync<Service>(SinchClient.JsonSerializerOptions);
+                return serviceResponse;
+            }
+            else
+            {
+                var error = await result.Content.ReadFromJsonAsync<Error>(SinchClient.JsonSerializerOptions);
+                throw new Exception(error.Status + ": " + error.Message + "\n full error message:\n" + JsonSerializer.Serialize(error.Details, SinchClient.JsonSerializerOptions));
+            }
+        }
+
+        public async Task<Service> UpdateService(Service service)
+        {
+            var url = $"services/{service.Id}";
+            var result = await httpClient.PutAsJsonAsync(url, service, SinchClient.JsonSerializerOptions);
+            if (result.IsSuccessStatusCode)
+            {
+                var serviceResponse = await result.Content.ReadFromJsonAsync<Service>(SinchClient.JsonSerializerOptions);
+                return serviceResponse;
+            }
+            else
+            {
+                var error = await result.Content.ReadFromJsonAsync<Error>(SinchClient.JsonSerializerOptions);
+                throw new Exception(error.Status + ": " + error.Message + "\n full error message:\n" + JsonSerializer.Serialize(error.Details, SinchClient.JsonSerializerOptions));
+            }
+        }
+
+        /// <summary>
+        /// Delete the specified services
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<bool> DeleteService(string Id)
+        {
+            var url = $"services/{Id}";
+            var result = await httpClient.DeleteAsync(url);
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                var error = await result.Content.ReadFromJsonAsync<Error>(SinchClient.JsonSerializerOptions);
+                throw new Exception(error.Status + ": " + error.Message + "\n full error message:\n" + JsonSerializer.Serialize(error.Details, SinchClient.JsonSerializerOptions));
+            }
+        }
+
+        #endregion
     }
 }

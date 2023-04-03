@@ -7,8 +7,11 @@ namespace Sinch.FaxApi.Models
 {
     public class Service
     {
+        /// <summary>
+        /// Id of the service returned from sinch
+        /// </summary>
         [JsonPropertyName("Id")]
-        public Ulid Id { get; set; } = Ulid.NewUlid();
+        public Ulid Id { get; set; }
 
         [JsonPropertyName("incomingFaxCallbackUrl")]
         [Column(TypeName = "varchar(2048)")]
