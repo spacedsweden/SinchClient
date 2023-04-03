@@ -66,7 +66,7 @@ namespace Sinch.FaxApi
         /// <exception cref="Exception"></exception>
         public async Task<string> DownloadPdf(string id, string filename)
         {
-            var stream = await DownloadFaxPDF(id);
+            var stream = await DownloadPdf(id);
             using (var fileStream = File.Create(filename))
             {
                 stream.Seek(0, SeekOrigin.Begin);
